@@ -54,6 +54,10 @@ When a change is made by the user, the hidden textarea's content is updated. So 
 
 The <code>editor</code> has many useful methods.
 
+### How it works
+
+Toupee, like most other WYSIWYG editors, uses an <code>iframe</code> with <code>designMode</code> turned on. The original textarea is hidden, and it's contents are updated as changes are made to the content in the iframe.
+
 ### editor.bind(eventName, callback)
 
 <code>editor.bind</code> is a convenience method for binding event listeners to the editor (actually, all events/listeners are fired/attached to <code>editor.widget</code>). Inside the callback, <code>this</code> is a reference to <code>editor.widget</code>.

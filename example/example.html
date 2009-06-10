@@ -12,6 +12,40 @@
     <script src="../src/toupee.buttons.js" type="text/javascript" charset="utf-8"></script>
     <script src="../src/toupee.browser.js" type="text/javascript" charset="utf-8"></script>    
     <script src="example.js" type="text/javascript" charset="utf-8"></script>
+    <style type="text/css" media="screen">
+        .toupee-widget .toupee-toolbar {
+            overflow: hidden;
+            padding: 0;
+            margin: 0 0 5px 0;
+        }
+        .toupee-widget .toupee-toolbar li {
+            float: left;
+            list-style: none outside;
+        }
+        .toupee-widget .toupee-toolbar a {
+            height: 19px;
+            width: 19px;
+            background: url(buttons.png);
+            text-indent: -9999px;
+            overflow: hidden;
+            float: left;
+        }
+        .toupee-widget .toupee-toolbar a.bold:hover { background-position: -19px 0; }
+
+        .toupee-widget .toupee-toolbar a.italic { background-position: 0 -19px; }
+        .toupee-widget .toupee-toolbar a.italic:hover { background-position: -19px -19px; }
+
+        .toupee-widget .toupee-toolbar a.link { width: 28px; background-position: 0 -76px; }
+        .toupee-widget .toupee-toolbar a.link:hover { background-position: -28px -76px; }
+        
+        .toupee-widget .toupee-toolbar a.embed { width: 46px; background-position: 0 -57px; }
+        .toupee-widget .toupee-toolbar a.embed:hover { background-position: -46px -57px; }
+        
+        .toupee-widget .toupee-iframe {
+            clear: left;
+            border: solid 1px #ccc;
+        }
+    </style>
 </head>
 
 <body>

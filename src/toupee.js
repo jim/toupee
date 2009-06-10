@@ -17,7 +17,7 @@ var $$ = function(param) {
             var editor, win, doc, textarea, toolbar, buttons, iframe, initialized, widget;
             
             // methods
-            var bindEvents, buildWidget, bind, button, exec, htmlContent, initialize, run, clean, dirty, textContent;
+            var bindEvents, buildWidget, bind, button, exec, htmlContent, initialize, run, range, selection, clean, dirty, textContent;
             
             // init
             editor = {};
@@ -29,10 +29,22 @@ var $$ = function(param) {
             dirty = options['dirty'] || $.fn.toupee.html.dirty;
             
             bindEvents = function() {
-                $(doc).bind('keyup', function(event) {
-                    $(textarea).html(htmlContent());
-                    $(widget).trigger('change.toupee', [editor]);
+                
+                var previousContent;
+                
+                $.each(EVENTS, function(index, eventName) {
+                    $(doc).bind(eventName, function(event) {
+                        if (htmlContent() != previousContent) {
+                            $(widget).trigger('change.toupee', [editor]);
+                            
+                            // This may be a performance issue
+                            $(textarea).html(htmlContent());
+                            
+                            previousContent = editor.htmlContent();
+                        }                         
+                    });
                 });
+
             };
             
             buildWidget = function() {
@@ -59,7 +71,8 @@ var $$ = function(param) {
                     var link = $(event.target).closest('a')[0];
                     if (link) {
                         $(widget).trigger(link.className + '.click.toupee', [editor]);
-                        return false;                    
+                        link.blur();
+                        return false;           
                     }
                 });
             };
@@ -110,9 +123,23 @@ var $$ = function(param) {
             };
             editor.htmlContent = htmlContent;
             
+            selection = function() {
+                return win.getSelection ? win.getSelection() : doc.selection;
+            };
+            editor.selection = selection;
+            
+            range = function() {
+                
+            };
+            editor.range = range;
+            
             run = function() {
-                $.each(arguments, function(index) {
-                    this.call(editor);
+                $.each(arguments, function(index, method) {
+                    try {
+                        method.call(editor);
+                    } catch(e) {
+                        console.error('Invalid value passed to editor.run(): ', method);
+                    }
                 });
             };
             editor.run = run;
