@@ -1,13 +1,13 @@
 #!/bin/bash
 
-files=(src/toupee.js src/toupee/browser.js)
+files=(src/toupee.js src/toupee/browser.js src/toupee/html.js src/toupee/buttons.js src/toupee/selection.js)
 
 if [ ! -d dist ]; then
   mkdir dist
 fi
 
-if [ -f dist/dollar_spec.js ]; then
-  rm dist/dollar_spec.js
+if [ -f dist/toupee.js ]; then
+  rm dist/toupee.js
 fi
 
 for file in ${files[@]}; do
