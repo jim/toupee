@@ -23,4 +23,11 @@ jQuery(function($) {
             previousContent = editor.htmlContent();
         }
     });
+    
+    $('a.insert-link').click(function(event) {
+      var html = '<img class="upload image" src="http://static.open.salon.com/files/green_peppers1231794320.jpg" width="30%" height="30%" />';
+      $($$('textarea').editor.widget()).trigger('insert.toupee', [html]);
+      return false;
+    });
+    
 });

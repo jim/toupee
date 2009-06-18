@@ -7,6 +7,15 @@ Toupee is heavily based on work by Joshua Peek and the other contributors to the
 
 ## Introduction
 
+
+### Building the project
+
+From inside the project directory, run the build script:
+
+    ./build
+    
+You will have a new file at <code>dist/toupee.js</code>. There isn't any minifying or obfuscation done, as I've found most projects have their own static asset compression strategy. [Feel free to add one](http://developer.yahoo.com/yui/compressor/).
+
 ### Supported platforms
 
 This is alpha quality software; use at your own risk. Toupee appears to work in:
@@ -56,11 +65,11 @@ The <code>editor</code> has many useful methods.
 
 ### How it works
 
-Toupee, like most other WYSIWYG editors, uses an <code>iframe</code> with <code>designMode</code> turned on. The original textarea is hidden, and it's contents are updated as changes are made to the content in the iframe.
+Toupee, like most other WYSIWYG editors, uses an <code>iframe</code> with <code>designMode</code> turned on. The original textarea is hidden, and it's contents are updated as changes are made to the content in the iframe. This may become a performance issue, at which point updating the textarea's content will be fired by the form's submission.
 
 ### editor.bind(eventName, callback)
 
-<code>editor.bind</code> is a convenience method for binding event listeners to the editor (actually, all events/listeners are fired/attached to <code>editor.widget</code>). Inside the callback, <code>this</code> is a reference to <code>editor.widget</code>.
+<code>editor.bind</code> is a convenience method for binding event listeners to the editor (actually, all events/listeners are fired on/attached to <code>editor.widget</code>). Inside the callback, <code>this</code> is a reference to <code>editor.widget</code>.
 
 Here is how to create a button that will create a link when clicked:
 
@@ -73,7 +82,7 @@ Here is how to create a button that will create a link when clicked:
     
 ### editor.button(buttonName, options)
 
-Creates a new button in the toolbar, which will fire <code>buttonName.click.toupee</code> on <code>editor.widget</code> when clicked. This method and <code>editor.bind</code> will allow for the creation of custom toolbars.
+Creates a new button in the toolbar, which will fire <code>buttonName.click.toupee</code> on <code>editor.widget</code> when clicked. This method and <code>editor.bind</code>  allow for the creation of custom toolbars.
 
 ### editor.exec(commandName, optionalArgument)
 

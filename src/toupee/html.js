@@ -6,7 +6,7 @@
         if (jQuery.isFunction(replacement))  {
             return replacement;
         }
-        return function(match) { return match };
+        return function(match) { return replacement };
     };
     
     var blank = function(text) {
@@ -17,13 +17,17 @@
         return text == null ? '' : String(text);
     };
     
+    var escapeRegExp = function(string) {
+        return String(string).replace(/([.*+?^=!:${}()|[\]\/\\])/g, '\\$1');
+    };
+    
     var gsub = function(source, pattern, replacement) {
         var result = '', match;
         replacement = prepareReplacement(replacement);
 
         if (typeof(pattern) == 'string') {
-            pattern = RegExp.escape(pattern);
-        };
+            pattern = escapeRegExp(pattern);
+        }
 
         if (!(pattern.length || pattern.source)) {
             replacement = replacement('');
@@ -140,6 +144,8 @@
         // Convert double returns into paragraphs
         text = text.replace(/\n\n+/g, "</p>\n\n<p>");
 
+
+
         // Convert a single return into a line break
         text = gsub(text, /(([^\n])(\n))(?=([^\n]))/, function(match) {
             return match[2] + "<br />\n";
@@ -163,7 +169,7 @@
                 var span = $(this);
               if (span.hasClass('Apple-style-span')) {
                 span.removeClass('Apple-style-span');
-                if (span.className == '')
+                if (span[0].className == '')
                   span.removeAttr('class');
                 replaced = true;
               } else if (span.css('fontWeight') == 'bold') {
@@ -185,7 +191,7 @@
                 span.html('<u>' + span.html() + '</u>');
                 replaced = true;
               } else if (span[0].attributes.length == 0) {
-                span.replaceWith(span.innerHTML);
+                span.replaceWith(span.html());
                 replaced = true;
               }
             });
@@ -196,8 +202,9 @@
         var acceptableBlankTags = ['BR', 'IMG'];
 
         element.find('*').each(function(index) {
-             if (blank(this.innerHTML) && jQuery.inArray(this.nodeName, acceptableBlankTags) != -1 && this.id != 'bookmark')
-               $(this).remove();
+             if (blank(this.innerHTML) && $.inArray(this.nodeName, acceptableBlankTags) < 0 && this.id != 'bookmark') {
+                 $(this).remove();                 
+             }
         });
 
         text = element.html();
@@ -246,18 +253,19 @@
 
         // TODO: Test if WebKit has issues editing spans without
         // "Apple-style-span". If not, remove this.
-        if ($.fn.toupee.browser.webkit)
-        element.find('span').each(function(index) {
-            var span = $(this);
-            if (span.css('fontWeight') == 'bold')
-                span.addClass('Apple-style-span');
+        if ($.fn.toupee.browser.webkit) {
+            element.find('span').each(function(index) {
+                var span = $(this);
+                if (span.css('fontWeight') == 'bold')
+                    span.addClass('Apple-style-span');
 
-            if (span.css('fontStyle') == 'italic')
-                span.addClass('Apple-style-span');
+                if (span.css('fontStyle') == 'italic')
+                    span.addClass('Apple-style-span');
 
-            if (span.css('textDecoration') == 'underline')
-                span.addClass('Apple-style-span');
-        });
+                if (span.css('textDecoration') == 'underline')
+                    span.addClass('Apple-style-span');
+            });            
+        }
 
         text = element.html();
         text = tidyXHTML(text);
@@ -292,7 +300,9 @@
     }
     
     $.fn.toupee.html = {
+        tidyXHTML: tidyXHTML,
         clean: clean,
-        dirty: dirty
+        dirty: dirty,
+        gsub: gsub
     };
 })(jQuery);

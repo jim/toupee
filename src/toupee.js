@@ -45,6 +45,10 @@ var $$ = function(param) {
                     });
                 });
 
+                bind('insert.toupee', function(event, html) {
+                  // According to Mozilla's docs, IE does not support insertHTML
+                  exec('insertHTML', html);
+                });
             };
             
             buildWidget = function() {

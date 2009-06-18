@@ -1,0 +1,16 @@
+#!/bin/bash
+
+files=(src/toupee.js src/toupee/browser.js)
+
+if [ ! -d dist ]; then
+  mkdir dist
+fi
+
+if [ -f dist/dollar_spec.js ]; then
+  rm dist/dollar_spec.js
+fi
+
+for file in ${files[@]}; do
+  cat ${file} >> dist/toupee.js
+  echo $'\n' >> dist/toupee.js
+done
