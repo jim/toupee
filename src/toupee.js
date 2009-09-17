@@ -14,7 +14,7 @@ var $$ = function(param) {
             var EVENTS = ['click', 'dblclick', 'mousedown', 'mouseup', 'mouseover', 'mousemove', 'mouseout', 'keypress', 'keydown', 'keyup'];
             
             // private variables
-            var editor, win, doc, textarea, toolbar, buttons, iframe, initialized, widget;
+            var editor, win, doc, textarea, toolbar, buttons, iframe, initialized, widget, styles;
             
             // methods
             var bindEvents, buildWidget, bind, button, exec, htmlContent, initialize, run, range, selection, clean, dirty, textContent;
@@ -28,6 +28,12 @@ var $$ = function(param) {
             clean = options['clean'] || $.fn.toupee.html.clean;
             dirty = options['dirty'] || $.fn.toupee.html.dirty;
             
+            styles = options['styles'] || {
+              'font-family': 'Helvetica, Arial, san-serif',
+              'font-size': '12px',
+              'line-height': '1.4em'
+            };
+            
             bindEvents = function() {
                 
                 var previousContent;
@@ -37,9 +43,6 @@ var $$ = function(param) {
                         if (htmlContent() != previousContent) {
                             $(widget).trigger('change.toupee', [editor]);
                             
-                            // This may be a performance issue
-                            $(textarea).html(htmlContent());
-                            
                             previousContent = editor.htmlContent();
                         }                         
                     });
@@ -48,6 +51,10 @@ var $$ = function(param) {
                 bind('insert.toupee', function(event, html) {
                   // According to Mozilla's docs, IE does not support insertHTML
                   exec('insertHTML', html);
+                });
+                
+                $(textarea).closest('form').bind('submit', function(event) {
+                  $(textarea).val(htmlContent());
                 });
             };
             
@@ -65,9 +72,9 @@ var $$ = function(param) {
                     initialize();
                 });
                 
-                // iframe onload never fires in webkit; this is a fallback
+                // iframe onload never fires in webkit or ie; this is a fallback
                 if ($.fn.toupee.browser.webkit) {
-                    setTimeout(function() { if (!initialized) { initialize(); } }, 100);
+                    setTimeout(function() { if (!initialized) { initialize(); } }, 1000);
                 }
                 
                 // events handler for toolbar clicks
@@ -91,9 +98,38 @@ var $$ = function(param) {
                     win = iframe.contentWindow;
                 }
                 doc.designMode = 'on';
-                doc.execCommand("styleWithCSS", '', false);
+                doc.execCommand('undo', false, null);
+                // doc.execCommand("styleWithCSS", '', false);
 
                 bindEvents();
+
+                setTimeout(function() {
+                
+                  if ($.fn.toupee.browser.ie) {
+                    var style = doc.createStyleSheet();
+                    style.addRule("body", "border: 0");
+                    style.addRule("p", "margin: 0");
+                
+                    $.each(styles, function(index, element) {
+                      var value = element + ': ' + styles[element];
+                      style.addRule('body', value);
+                    });
+                  } else if ($.fn.toupee.browser.opera) {
+                    var style = $(doc).find('style').text("p { margin: 0; }");
+                    var head = doc.getElementsByTagName('head')[0];
+                    head.appendChild(style);
+                  } else {
+                    var styleText = "p { margin: 0; }";
+                    var head = doc.getElementsByTagName("head")[0];
+                    var styleNode = doc.createElement("style");
+                    styleNode.appendChild(doc.createTextNode(styleText));
+                    head.appendChild(styleNode);
+                    $('body', doc).css(styles);
+                  }
+                
+                  doc.body.innerHTML = dirty($(textarea).text());
+                  $(widget).trigger('ready.toupee');
+                }, 20);
 
                 $(doc).find('body').html(dirty($(textarea).text()));
                 $(widget).trigger('ready.toupee');
@@ -150,6 +186,7 @@ var $$ = function(param) {
             
             editor.widget = function() { return widget; };
             editor.iframe = function() { return iframe; };
+            editor.doc = function() { return doc; };
             
             return editor;
         }();
