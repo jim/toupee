@@ -82,7 +82,7 @@ Here is how to create a button that will create a link when clicked:
     
 ### editor.button(buttonName, options)
 
-Creates a new button in the toolbar, which will fire <code>buttonName.click.toupee</code> on <code>editor.widget</code> when clicked. This method and <code>editor.bind</code>  allow for the creation of custom toolbars.
+Creates a new button in the toolbar, which will fire <code>buttonName.click.toupee</code> on <code>editor.widget</code> when clicked. This method and <code>editor.bind</code> allow for the creation of custom toolbars.
 
 ### editor.exec(commandName, optionalArgument)
 

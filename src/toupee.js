@@ -17,7 +17,7 @@ var $$ = function(param) {
             var editor, win, doc, textarea, toolbar, buttons, iframe, initialized, widget, styles;
             
             // methods
-            var bindEvents, buildWidget, bind, button, exec, htmlContent, initialize, run, range, selection, clean, dirty, textContent;
+            var bindEvents, buildWidget, bind, button, exec, focus, htmlContent, initialize, run, range, reload, selection, clean, dirty, textContent;
             
             // init
             editor = {};
@@ -51,6 +51,7 @@ var $$ = function(param) {
                 bind('insert.toupee', function(event, html) {
                   // According to Mozilla's docs, IE does not support insertHTML
                   exec('insertHTML', html);
+                  reload();
                 });
                 
                 $(textarea).closest('form').bind('submit', function(event) {
@@ -97,14 +98,18 @@ var $$ = function(param) {
                 } else if (iframe.contentWindow.document) {
                     win = iframe.contentWindow;
                 }
-                doc.designMode = 'on';
-                doc.execCommand('undo', false, null);
+                
+                
+                // doc.designMode = 'on';
+                // doc.execCommand('undo', false, null);
                 // doc.execCommand("styleWithCSS", '', false);
 
                 bindEvents();
 
                 setTimeout(function() {
                 
+                  // TODO refactor the heck out of this style assignment
+                  
                   if ($.fn.toupee.browser.ie) {
                     var style = doc.createStyleSheet();
                     style.addRule("body", "border: 0");
@@ -128,10 +133,18 @@ var $$ = function(param) {
                   }
                 
                   doc.body.innerHTML = dirty($(textarea).text());
+                  
+                  reload();
+                  
                   $(widget).trigger('ready.toupee');
                 }, 20);
 
-                $(doc).find('body').html(dirty($(textarea).text()));
+                // setTimeout(function() {
+                  // doc.designMode = 'on';
+                  // doc.execCommand('undo', false, null);
+                // }, 100);
+
+                // $(doc).find('body').html(dirty($(textarea).text()));
                 $(widget).trigger('ready.toupee');
             }
 
@@ -151,6 +164,11 @@ var $$ = function(param) {
                 $(widget).bind(eventName, method);
             }
             editor.bind = bind;
+            
+            focus = function() {
+              win.focus();
+            };
+            editor.focus = focus;
             
             exec = function(command, optional) {
                 optional = optional || null;
@@ -172,6 +190,16 @@ var $$ = function(param) {
                 
             };
             editor.range = range;
+            
+            reload = function() {
+              var content = doc.body.innerHTML;
+              doc.designMode = 'off';
+              doc.body.innerHTML = content;
+              setTimeout(function() {
+                doc.designMode = 'on';
+                doc.execCommand('undo', false, null);
+              }, 1000);
+            };
             
             run = function() {
                 $.each(arguments, function(index, method) {

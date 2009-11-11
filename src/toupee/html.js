@@ -144,8 +144,6 @@
         // Convert double returns into paragraphs
         text = text.replace(/\n\n+/g, "</p>\n\n<p>");
 
-
-
         // Convert a single return into a line break
         text = gsub(text, /(([^\n])(\n))(?=([^\n]))/, function(match) {
             return match[2] + "<br />\n";
@@ -299,10 +297,69 @@
         return text;
     }
     
+    var sanitize = function(html, options) {
+      return tidyXHTML(sanitizeElement($('<div/>').html(html), options).innerHTML);
+    };
+    
+    var sanitizeNode = function(node, options) {
+      
+    };
+
+    var sanitizeElement = function(element, options) {
+      var defaults = {
+        tags: [],
+        attributes: []
+      };
+      options = options || {};
+      options = $.extend(defaults, options);
+
+      var sanitized = document.createElement(element.nodeName);
+      // $('<' + element.nodeName + '/>').get(0);
+
+      element = $(element).get(0);
+      // $.each(element.childNodes, function() {
+      for (var j=0,k=element.childNodes.length; j<k; j++) {
+        var child = element.childNodes[0];
+        if (child.nodeType == 1) {
+          var children = sanitizeElement(child, options).childNodes;
+
+          if ($.inArray(child.nodeName.toLowerCase(), options.tags) != -1) {
+            var newChild = $('<' + child.nodeName + '/>').get(0);
+            
+            $.each(options.attributes, function(i, a) {
+              if (value = $(child).attr(a)) {
+                $(newChild).attr(a, value);
+              }
+            });
+            sanitized.appendChild(newChild);
+            for (var i=0,l=children.length; i < l; i++) {
+              newChild.appendChild(children[0]);
+            }
+          } else {
+            element.removeChild(child);
+            for (var i=0,l=children.length; i < l; i++) {
+              sanitized.appendChild(children[0]);
+            }
+          }
+        } else if (child.nodeType == 3) {
+          sanitized.appendChild(child);
+        }
+        
+        if(child.parentNode == element) {
+          element.removeChild(child);
+        }
+        
+      };
+      
+      return sanitized;
+    };
+    
+    
     $.fn.toupee.html = {
         tidyXHTML: tidyXHTML,
         clean: clean,
         dirty: dirty,
-        gsub: gsub
+        gsub: gsub,
+        sanitize: sanitize
     };
 })(jQuery);

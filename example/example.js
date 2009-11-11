@@ -12,6 +12,10 @@ jQuery(function($) {
     $$('textarea').editor.run(function() {
         this.button('embed');
         this.bind('embed.click.toupee', function(event, editor) {
+          var html = prompt('Please enter the HTML to be inserted');
+          if (html) {
+            $($$('textarea').editor.widget()).trigger('insert.toupee', [html]);
+          }
         });
     });
     
@@ -25,7 +29,7 @@ jQuery(function($) {
     $('a.insert-link').click(function(event) {
       var html = '<img class="upload image" src="http://static.open.salon.com/files/green_peppers1231794320.jpg" width="30%" height="30%" />';
       $($$('textarea').editor.widget()).trigger('insert.toupee', [html]);
+      $$('textarea').editor.focus();
       return false;
     });
-    
 });

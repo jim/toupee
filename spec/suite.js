@@ -11,14 +11,14 @@ function onLoad() {
     setup.publicPath = 'diligence/public';
     setup.runnerPath = 'runner.html';
     setup.testPaths = [
-      'dollar_spec.js',
       '../example/jquery-1.3.2.js',
       '../src/toupee.js',
       '../src/toupee/browser.js',
       '../src/toupee/buttons.js',
       '../src/toupee/html.js',
       '../src/toupee/selection.js',
-      'toupee_spec.js',
+      'dollar_spec.js',
+      'toupee/html_spec.js',
       'respond.js'
     ];
     setup.process = function(browser, results) {
