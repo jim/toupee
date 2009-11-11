@@ -48,10 +48,15 @@ var $$ = function(param) {
                     });
                 });
 
-                bind('insert.toupee', function(event, html) {
+                bind('insert.toupee', function(event, html, doReload) {
+                  
+                  doReload = doReload == null ? false : doReload;
+                  
                   // According to Mozilla's docs, IE does not support insertHTML
                   exec('insertHTML', html);
-                  reload();
+                  if (doReload) {
+                    reload();                    
+                  }
                 });
                 
                 $(textarea).closest('form').bind('submit', function(event) {
@@ -198,6 +203,7 @@ var $$ = function(param) {
               setTimeout(function() {
                 doc.designMode = 'on';
                 doc.execCommand('undo', false, null);
+                iframe.contentWindow.focus();
               }, 1000);
             };
             

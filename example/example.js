@@ -12,9 +12,10 @@ jQuery(function($) {
     $$('textarea').editor.run(function() {
         this.button('embed');
         this.bind('embed.click.toupee', function(event, editor) {
+          event.target.blur();
           var html = prompt('Please enter the HTML to be inserted');
           if (html) {
-            $($$('textarea').editor.widget()).trigger('insert.toupee', [html]);
+            $(editor.widget()).trigger('insert.toupee', [html, true]);
           }
         });
     });
