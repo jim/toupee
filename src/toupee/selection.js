@@ -1,11 +1,11 @@
 (function($) {
-    $.fn.toupee.selection = function(win, doc) {
+    $.fn.toupee.Selection = function(win, doc) {
 
         // public
-        var node, range, select, selection;
+        var node, getRange, select, selection, createBookmark, setBookmark, moveToBookmark, isBookmarked;
 
         // private
-        var compareRanges, createRangeFromElement, setBookmark, moveToBookmark;
+        var compareRanges, createRangeFromElement;
         
         /**
          *  Get selected text.
@@ -17,7 +17,7 @@
         /**
          *  Get range for selected text.
         **/
-        range = function() {
+        getRange = function() {
             var sel = selection();
 
             try {
@@ -144,42 +144,51 @@
             return null;
         };
 
+        isBookmarked = function() {
+          return !(doc.getElementById('bookmark') === null);
+        };
+
+        createBookmark = function() {
+          var bookmark = doc.getElementById('bookmark');
+          if (bookmark) {
+              bookmark.parentNode.removeChild(bookmark);                
+          }
+          bookmark = doc.createElement('span');
+          bookmark.id = 'bookmark';
+          bookmark.innerHTML = '&nbsp;';
+          return bookmark;
+        };
+
         setBookmark = function() {
-            var bookmark = this.document.getElementById('bookmark');
-            if (bookmark) {
-                bookmark.parentNode.removeChild(bookmark);                
-            }
-            bookmark = this.document.createElement('span');
-            bookmark.id = 'bookmark';
-            bookmark.innerHTML = '&nbsp;';
-            if ($.fn.toupee.broser.ie) {
-                var range = this.document.selection.createRange();
-                var parent = this.document.createElement('div');
+            var bookmark = createBookmark();
+            if ($.fn.toupee.browser.ie) {
+                var range = doc.selection.createRange();
+                var parent = doc.createElement('div');
                 parent.appendChild(bookmark);
                 range.collapse();
                 range.pasteHTML(parent.innerHTML);
             } else {
-                var range = this.getRange();
+                var range = getRange();
                 range.insertNode(bookmark);
             }
         };
 
         moveToBookmark = function() {
-            var bookmark = this.document.getElementById('bookmark');
+            var bookmark = doc.getElementById('bookmark');
             if (!bookmark) {
-                return;                
+                return;         
             }
 
             if ($.fn.toupee.browser.ie) {
-                var range = this.getRange();
-                range.moveToElementText(bookmark);
-                range.collapse();
-                range.select();
+                var r = range();
+                r.moveToElementText(bookmark);
+                r.collapse();
+                r.select();
             } else if ($.fn.toupee.browser.webkit) {
-                var selection = this.getSelection();
-                selection.setBaseAndExtent(bookmark, 0, bookmark, 0);
+                var s = selection();
+                s.setBaseAndExtent(bookmark, 0, bookmark, 0);
             } else {
-                var range = this.getRange();
+                var range = getRange();
                 range.setStartBefore(bookmark);
             }
 
@@ -189,9 +198,13 @@
 
         return {
             node: node,
-            range: range,
+            getRange: getRange,
             select: select,
-            selection: selection
+            selection: selection,
+            setBookmark: setBookmark,
+            isBookmarked: isBookmarked,
+            moveToBookmark: moveToBookmark,
+            createBookmark: createBookmark
         };
     }
 })(jQuery);

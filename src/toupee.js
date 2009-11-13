@@ -17,7 +17,7 @@ var $$ = function(param) {
             var editor, win, doc, textarea, toolbar, buttons, iframe, initialized, widget, styles;
             
             // methods
-            var bindEvents, buildWidget, bind, button, exec, focus, htmlContent, initialize, run, range, reload, selection, clean, dirty, textContent;
+            var bindEvents, buildWidget, bind, button, exec, focus, htmlContent, initialize, run, range, reload, selection, setup, clean, dirty, textContent;
             
             // init
             editor = {};
@@ -48,15 +48,8 @@ var $$ = function(param) {
                     });
                 });
 
-                bind('insert.toupee', function(event, html, doReload) {
-                  
-                  doReload = doReload == null ? false : doReload;
-                  
-                  // According to Mozilla's docs, IE does not support insertHTML
-                  exec('insertHTML', html);
-                  if (doReload) {
-                    reload();                    
-                  }
+                bind('insert.toupee', function(event, html) {
+                  insert(html);
                 });
                 
                 $(textarea).closest('form').bind('submit', function(event) {
@@ -139,9 +132,10 @@ var $$ = function(param) {
                 
                   doc.body.innerHTML = dirty($(textarea).text());
                   
-                  reload();
-                  
-                  $(widget).trigger('ready.toupee');
+                  setup(function() {
+                    $(widget).trigger('ready.toupee');                    
+                  });
+
                 }, 20);
 
                 // setTimeout(function() {
@@ -186,8 +180,19 @@ var $$ = function(param) {
             };
             editor.htmlContent = htmlContent;
             
+            insert = function(html) {
+              exec('insertHTML', html + '<span id="bookmark">&nbsp;</span>');
+              reload(function() {
+                selection().moveToBookmark();
+                setTimeout(function() {
+                  focus();
+                }, 100);
+              });
+            };
+            editor.insert = insert;
+
             selection = function() {
-                return win.getSelection ? win.getSelection() : doc.selection;
+              return $.fn.toupee.Selection(win, doc);
             };
             editor.selection = selection;
             
@@ -196,16 +201,31 @@ var $$ = function(param) {
             };
             editor.range = range;
             
-            reload = function() {
+            setup = function(callback) {
+              callback = callback || function(){};
+              doc.designMode = 'on';
+              if ($.fn.toupee.browser.gecko) {
+                // unfreeze firefox and friends
+                doc.execCommand('undo', false, null);
+              }
+              callback();
+              focus();
+            };
+            
+            reload = function(callback) {
+              var s = selection();
+              if (!s.isBookmarked()) {
+                s.setBookmark();
+              }
+              
               var content = doc.body.innerHTML;
               doc.designMode = 'off';
               doc.body.innerHTML = content;
               setTimeout(function() {
-                doc.designMode = 'on';
-                doc.execCommand('undo', false, null);
-                iframe.contentWindow.focus();
-              }, 1000);
+                setup(callback);
+              }, 100);
             };
+            editor.reload = reload;
             
             run = function() {
                 $.each(arguments, function(index, method) {
